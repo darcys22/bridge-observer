@@ -1,0 +1,10 @@
+#
+####### requirements.txt #######
+#
+###### Requirements without Version Specifiers ######
+requests
+beautifulsoup4
+pyTelegramBotAPI
+psutil
+web3
+#
