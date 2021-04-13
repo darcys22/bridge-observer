@@ -1,4 +1,4 @@
-#! python3
+#!/usr/bin/python3
 import config
 import bs4
 import multiprocessing
@@ -16,6 +16,8 @@ bot = telebot.TeleBot(config.TgBotAPIKey)
 w3 = Web3(Web3.HTTPProvider(config.ethereumHTTPProvider))
 
 # ------------------- Query Main Page up ------------------------
+# Scrapes the title of the main page and checks that it
+# matches what is specified in config
 def checkMainPage():
     page = requests.get(config.mainSite)
     available = False
@@ -25,6 +27,8 @@ def checkMainPage():
     return available
 
 # ------------------- Query api up ------------------------
+# There is an endpoint specified in the config, simply querys
+# and checks that it gets 200 response
 def checkBackendAPI():
     r = requests.get(url = config.apiRequest)
     response = r.status_code
@@ -32,6 +36,8 @@ def checkBackendAPI():
     return available
 
 # ------------------- Query wOxen Balance ------------------------
+# Calls the ERC-20 contract to get the balance of the hotwallet
+# Checks that the hotwallets token balance is above a certain threshold
 def checkTokenBalance():
     url_eth = "https://api.etherscan.io/api"
     API_ENDPOINT = url_eth+"?module=contract&action=getabi&address="+str(config.contractAddress)
@@ -41,15 +47,19 @@ def checkTokenBalance():
         address=Web3.toChecksumAddress(config.contractAddress),
         abi = response["result"]
     )
-    balance = instance.functions.balanceOf(Web3.toChecksumAddress(config.hotWalletAddress)).call() / 10**config.decimals
+    decimals = instance.functions.decimals().call()
+    balance = instance.functions.balanceOf(Web3.toChecksumAddress(config.hotWalletAddress)).call() / 10**decimals
     return balance > config.lowBalanceThreshold
 
 # ------------------- Query Eth Balance ------------------------
+# Simply checks that the ethereum in the hotwallet is above a certain threshold
 def checkEthBalance():
     balance = w3.eth.get_balance(Web3.toChecksumAddress(config.hotWalletAddress)) / 10**18
     return balance > config.lowEthThreshold
 
 # ------------------- Telegram Bot ------------------------
+# Endpoints in Telegram to get your userid. This is then set in the
+# config so the bot knows who the message
 
 # Start
 @bot.message_handler(commands=['start', 'help'])
@@ -65,7 +75,9 @@ def add_user(message):
 # /UserID
 
 
-# Alerts checking bridge
+# ------------------- Notification ------------------------
+# Iterates over the checks above and will message the users depending
+# on response
 def AlertsNotifications():
   td = 0
   while True:
@@ -118,7 +130,7 @@ def AlertsNotifications():
     td += 1200
 #
 
-# Test Alerts checking bridge - will only check the main page of the bridge and more frequently (12 seconds)
+# Test Alerts - will only check the main page of the bridge and more frequently (12 seconds)
 def TestNotifications():
   td = 0
   while True:

@@ -26,7 +26,6 @@ lowEthThreshold = 1
 
 # Contract that defines token and its details
 contractAddress = '0xd1e2d5085b39b80c9948aeb1b9aa83af6756bcc5'
-decimals = 9
 
 # Infura endpoint to call
 ethereumHTTPProvider = 'https://mainnet.infura.io/v3/xxxxxxxxxxxxxxx'
